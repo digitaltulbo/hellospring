@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  db: # db service
+    container_name: h2
+    image: oscarfonts/h2:latest
+    ports:
+      - 1521:1521 # TCP port for database connection
+      - 8081:81   # HTTP port for web console connection
+    environment:
+      H2_OPTIONS: "-ifNotExists" # Do not recreate DB if it already exists
+    volumes:
+      - ./h2/:/opt/h2-data  # Storage and backup path connected with the host server
+    restart: always
+
+  app: # app service
+    container_name: spring-app
+    image: digitaltulbo/hellospring
+    ports:
+      - 9000:8080 # HTTP port connection
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://db:1521/demo
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+    depends_on:
+      - db
